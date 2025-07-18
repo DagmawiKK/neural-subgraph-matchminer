@@ -298,7 +298,10 @@ def run_greedy_trial(trial_idx):
     start_node = random.choice(list(graph.nodes))
 
     neigh = [start_node]
-    frontier = list(set(graph.neighbors(start_node)) - set(neigh))
+    if worker_args.graph_type == "undirected":
+        frontier = list(set(graph.neighbors(start_node)) - set(neigh))
+    elif worker_args.graph_type == "directed":
+        frontier = list(set(graph.successors(start_node)) - set(neigh))
     visited = {start_node}
 
     trial_patterns = defaultdict(list)
