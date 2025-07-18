@@ -26,6 +26,7 @@ parse_decoder(parser)
 args = parser.parse_args()
 
 def sample_neigh(graphs, size):
+    graph_type = args.graph_type
     ps = np.array([len(g) for g in graphs], dtype=float)
     ps /= np.sum(ps)
     dist = stats.rv_discrete(values=(np.arange(len(graphs)), ps))
@@ -35,7 +36,10 @@ def sample_neigh(graphs, size):
         graph = graphs[idx]
         start_node = random.choice(list(graph.nodes))
         neigh = [start_node]
-        frontier = list(set(graph.neighbors(start_node)) - set(neigh))
+        if graph_type == "undirected":
+            frontier = list(set(graph.neighbors(start_node)) - set(neigh))
+        elif graph_type == "directed":
+            frontier = list(set(graph.successors(start_node)) - set(neigh))
         visited = set([start_node])
         while len(neigh) < size and frontier:
             new_node = random.choice(list(frontier))
