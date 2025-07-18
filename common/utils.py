@@ -16,6 +16,14 @@ import warnings
 
 from common import feature_preprocess
 
+import argparse
+from subgraph_mining.config import parse_decoder
+from subgraph_matching.config import parse_encoder
+
+parser = argparse.ArgumentParser(description='Decoder arguments')
+parse_encoder(parser)
+parse_decoder(parser)
+args = parser.parse_args()
 
 def sample_neigh(graphs, size):
     ps = np.array([len(g) for g in graphs], dtype=float)
