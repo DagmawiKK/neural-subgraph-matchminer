@@ -50,6 +50,10 @@ def parse_decoder(parser):
         help='Motif dataset to use')
     dec_parser.add_argument('--n_clusters', type=int,
         help='number of clusters for analysis')
+    
+        # Graph type selection
+    dec_parser.add_argument('--graph_type', type=str,
+        help='"directed" or "undirected" graph type')
 
     # Set default values
     parser.set_defaults(
@@ -65,6 +69,7 @@ def parse_decoder(parser):
         radius=3,
         subgraph_sample_size=0,
         sample_method="radial",
+        graph_type="undirected",
         skip="learnable",
         min_pattern_size=5,
         max_pattern_size=10,
