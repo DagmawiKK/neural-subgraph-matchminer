@@ -47,7 +47,10 @@ def sample_neigh(graphs, size):
             assert new_node not in neigh
             neigh.append(new_node)
             visited.add(new_node)
-            frontier += list(graph.neighbors(new_node))
+            if graph_type == "undirected":
+                frontier += list(graph.neighbors(new_node))
+            elif graph_type == "directed":
+                frontier += list(graph.successors(new_node))
             frontier = [x for x in frontier if x not in visited]
         if len(neigh) == size:
             return graph, neigh
