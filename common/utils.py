@@ -241,18 +241,22 @@ def build_optimizer(args, params):
 def standardize_graph(graph: nx.Graph, anchor: int = None) -> nx.Graph:
     """
     Standardize graph attributes to ensure compatibility with DeepSnap.
+    Handles both undirected and directed NetworkX graphs.
     
     Args:
-        graph: Input NetworkX graph
+        graph: Input NetworkX graph (can be nx.Graph or nx.DiGraph)
         anchor: Optional anchor node index
         
     Returns:
         NetworkX graph with standardized attributes
     """
-    g = nx.Graph()
+    # Detect graph type and create the same type
+    if isinstance(graph, nx.DiGraph):
+        g = nx.DiGraph()
+    else:
+        g = nx.Graph()
     g.add_nodes_from(graph.nodes())
     g.add_edges_from(graph.edges())
-   # g = graph.copy()
     
     # Standardize edge attributes
     for u, v in g.edges():
@@ -288,7 +292,6 @@ def standardize_graph(graph: nx.Graph, anchor: int = None) -> nx.Graph:
         if anchor is not None:
             node_data['node_feature'] = torch.tensor([float(node == anchor)])
         elif 'node_feature' not in node_data:
-            # Default feature if no anchor specified
             node_data['node_feature'] = torch.tensor([1.0])
             
         # Ensure label exists
