@@ -92,8 +92,7 @@ jobs:
                 --dataset=graph.pkl \
                 --queries_path=results/patterns.pkl \
                 --out_path=results/ \
-                --node_anchored \
-                --preserve_labels
+                --node_anchored
               echo 'Counting completed.'
               ls -la /app/results
             "
