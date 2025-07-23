@@ -213,7 +213,7 @@ def count_graphlets_helper(inp):
                             edge_match=lambda e1, e2: e1.get("type") == e2.get("type"))
                 else:
                     if args.graph_type == "directed":
-                        matcher = iso.GraphMatcher(target, query,
+                        matcher = iso.DiGraphMatcher(target, query,
                             node_match=iso.categorical_node_match(["anchor"], [0]))
                     else:
                         matcher = iso.GraphMatcher(target, query,
