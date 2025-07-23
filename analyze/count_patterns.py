@@ -51,6 +51,9 @@ MAX_MATCHES_PER_QUERY = 10000
 DEFAULT_SAMPLE_ANCHORS = 1000
 CHECKPOINT_INTERVAL = 100  # Save progress every 100 tasks
 
+import multiprocessing as mp
+mp.set_start_method("spawn", force=True)
+
 def compute_graph_stats(G, args):
     """Compute graph statistics for filtering."""
     stats = {
