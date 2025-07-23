@@ -477,7 +477,7 @@ def generate_one_baseline(args):
     return nx.Graph()  # Return empty graph if failed
 
 def convert_to_networkx(graph):
-    if isinstance(graph, nx.Graph):
+    if isinstance(graph, nx.Graph) or isinstance(graph, nx.DiGraph):
         return graph
     return pyg_utils.to_networkx(graph).to_undirected()
     
