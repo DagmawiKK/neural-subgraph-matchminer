@@ -124,36 +124,47 @@ def arg_parse():
     return parser.parse_args()
 
 def load_networkx_graph(filepath):
-    """Load a Networkx graph from pickle format with proper attributes handling."""
+    """Load a Networkx graph from pickle format matching decoder's approach"""
     with open(filepath, 'rb') as f:
         data = pickle.load(f)
-        if decoder_args.graph_type == "directed":
-            graph = nx.DiGraph()
-        else:
-            graph = nx.Graph()
         
-        # Add nodes with their attributes
-        for node in data['nodes']:
-            if isinstance(node, tuple):
-                # Format: (node_id, attribute_dict)
-                node_id, attrs = node
-                graph.add_node(node_id, **attrs)
+        # If it's already a NetworkX graph, return it directly
+        if isinstance(data, (nx.Graph, nx.DiGraph)):
+            return data
+            
+        # If it's a PyG Data object, convert to NetworkX
+        try:
+            from torch_geometric.data import Data
+            if isinstance(data, Data):
+                return pyg_utils.to_networkx(data).to_undirected()
+        except ImportError:
+            pass
+            
+        # If it's a dictionary with graph data
+        if isinstance(data, dict):
+            if decoder_args.graph_type == "directed":
+                graph = nx.DiGraph()
             else:
-                # Format: just node_id
-                graph.add_node(node)
-        
-        # Add edges with their attributes
-        for edge in data['edges']:
-            if len(edge) == 3:
-                # Format: (src, dst, attribute_dict)
-                src, dst, attrs = edge
-                graph.add_edge(src, dst, **attrs)
-            else:
-                # Format: just (src, dst)
-                src, dst = edge[:2]
-                graph.add_edge(src, dst)
-                
-        return graph
+                graph = nx.Graph()
+            
+            # Handle node attributes
+            if 'node_attrs' in data:
+                for node_id, attrs in enumerate(data['node_attrs']):
+                    graph.add_node(node_id, **attrs)
+            elif 'node_features' in data:
+                for node_id, feats in enumerate(data['node_features']):
+                    graph.add_node(node_id, features=feats)
+            
+            # Handle edge indices
+            if 'edge_index' in data:
+                edge_index = data['edge_index']
+                for src, dst in zip(edge_index[0], edge_index[1]):
+                    graph.add_edge(src.item(), dst.item())
+            
+            return graph
+            
+        raise ValueError(f"Unknown pickle format in {filepath}")
+
 
 def count_graphlets_helper(inp):
     """Worker function to count pattern occurrences with better timeout handling."""
