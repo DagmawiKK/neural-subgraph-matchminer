@@ -43,6 +43,15 @@ import torch.multiprocessing as mp
 from sklearn.decomposition import PCA
 from itertools import combinations
 
+import argparse
+from subgraph_mining.config import parse_decoder
+from subgraph_matching.config import parse_encoder
+
+parser = argparse.ArgumentParser(description='Decoder arguments')
+parse_encoder(parser)
+parse_decoder(parser)
+args = parser.parse_args()
+
 # Increase timeout for large graphs
 MAX_SEARCH_TIME = 1800  # 30 minutes for large graph processing
 MAX_MATCHES_PER_QUERY = 10000
