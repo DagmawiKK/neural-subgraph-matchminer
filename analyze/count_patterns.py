@@ -365,9 +365,9 @@ def count_graphlets(queries, targets, args):
     #changed to multiprocessing using 
     with Pool(processes=args.n_workers) as pool:
 
-        target_stats = pool.map(compute_graph_stats, targets)
+        target_stats = pool.starmap(compute_graph_stats, [(t, args) for t in targets])
         
-        query_stats = pool.map(compute_graph_stats, queries)
+        query_stats = pool.starmap(compute_graph_stats, [(q, args) for q in queries])
     
     # Generate work items with filtering
     inp = []
