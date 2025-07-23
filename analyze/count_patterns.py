@@ -163,7 +163,7 @@ def load_networkx_graph(filepath):
 
 def count_graphlets_helper(inp):
     """Worker function to count pattern occurrences with better timeout handling."""
-    i, query, target, method, node_anchored, anchor_or_none, preserve_labels, timeout = inp
+    i, query, target, method, node_anchored, anchor_or_none, preserve_labels, timeout, args = inp
     
     start_time = time.time()
     
@@ -401,10 +401,10 @@ def count_graphlets(queries, targets, args):
                     
                 for anchor in anchors:
                     inp.append((i, query, target, args.count_method, args.node_anchored, anchor, 
-                             args.preserve_labels, args.timeout))
+                             args.preserve_labels, args.timeout, args))
             else:
                 inp.append((i, query, target, args.count_method, args.node_anchored, None, 
-                         args.preserve_labels, args.timeout))
+                         args.preserve_labels, args.timeout, args))
     
     print(f"Generated {len(inp)} tasks after filtering")
     n_done = 0
