@@ -47,10 +47,9 @@ import argparse
 from subgraph_mining.config import parse_decoder
 from subgraph_matching.config import parse_encoder
 
-parser = argparse.ArgumentParser(description='Decoder arguments')
-parse_encoder(parser)
-parse_decoder(parser)
-decoder_args = parser.parse_args()
+# parser = argparse.ArgumentParser(description='Decoder arguments')
+# parse_decoder(parser)
+# args = parser.parse_args()
 
 # Increase timeout for large graphs
 MAX_SEARCH_TIME = 1800  # 30 minutes for large graph processing
@@ -69,7 +68,7 @@ def compute_graph_stats(G):
     
     # Add connected components info
     try:
-        if decoder_args.graph_type == "directed":
+        if args.graph_type == "directed":
             stats['n_components'] = nx.number_strongly_connected_components(G)
         else:
             stats['n_components'] = nx.number_connected_components(G)
@@ -102,6 +101,7 @@ def arg_parse():
     parser = argparse.ArgumentParser(description='count graphlets in a graph')
     parser.add_argument('--dataset', type=str)
     parser.add_argument('--queries_path', type=str)
+    parser.add_argument('--graph_type', type=str, default="undirected")
     parser.add_argument('--out_path', type=str)
     parser.add_argument('--n_workers', type=int)
     parser.add_argument('--count_method', type=str)
@@ -142,7 +142,7 @@ def load_networkx_graph(filepath):
             
         # If it's a dictionary with graph data
         if isinstance(data, dict):
-            if decoder_args.graph_type == "directed":
+            if args.graph_type == "directed":
                 graph = nx.DiGraph()
             else:
                 graph = nx.Graph()
@@ -212,7 +212,7 @@ def count_graphlets_helper(inp):
                 
                 if preserve_labels:
                     # Use lambda functions to properly match node and edge attributes
-                    if decoder_args.graph_type == "directed":
+                    if args.graph_type == "directed":
                         matcher = iso.DiGraphMatcher(target, query,
                             node_match=lambda n1, n2: (n1.get("anchor") == n2.get("anchor") and
                                                     n1.get("label") == n2.get("label")),
@@ -223,7 +223,7 @@ def count_graphlets_helper(inp):
                                                     n1.get("label") == n2.get("label")),
                             edge_match=lambda e1, e2: e1.get("type") == e2.get("type"))
                 else:
-                    if decoder_args.graph_type == "directed":
+                    if args.graph_type == "directed":
                         matcher = iso.DiGraphMatcher(target, query,
                             node_match=iso.categorical_node_match(["anchor"], [0]))
                     else:
@@ -311,7 +311,7 @@ def sample_subgraphs(target, n_samples=10, max_size=1000):
         # Start with a random node
         start_node = random.choice(nodes)
         subgraph_nodes = {start_node}
-        if decoder_args.graph_type == "directed":
+        if args.graph_type == "directed":
             frontier = list(target.successors(start_node))
         else:
             frontier = list(target.neighbors(start_node))
@@ -321,7 +321,7 @@ def sample_subgraphs(target, n_samples=10, max_size=1000):
             next_node = frontier.pop(0)
             if next_node not in subgraph_nodes:
                 subgraph_nodes.add(next_node)
-                if decoder_args.graph_type == "directed":
+                if args.graph_type == "directed":
                     frontier.extend([n for n in target.successors(next_node) 
                                     if n not in subgraph_nodes and n not in frontier])
                 else:
@@ -482,7 +482,7 @@ def generate_one_baseline(args):
                 subgraph = graph.subgraph(neigh)
                 if subgraph.number_of_nodes() == 0:
                     continue
-                if decoder_args.graph_type == "directed":
+                if args.graph_type == "directed":
                     largest_cc = max(nx.strongly_connected_components(subgraph), key=len)
                 else:
                     largest_cc = max(nx.connected_components(subgraph), key=len)
@@ -494,14 +494,14 @@ def generate_one_baseline(args):
             elif method == "tree":
                 start_node = random.choice(list(graph.nodes))
                 neigh = [start_node]
-                if decoder_args.graph_type == "directed":
+                if args.graph_type == "directed":
                     frontier = list(set(graph.successors(start_node)) - set(neigh))
                 else:
                     frontier = list(set(graph.neighbors(start_node)) - set(neigh))
                 while len(neigh) < len(query) and frontier:
                     new_node = random.choice(frontier)
                     neigh.append(new_node)
-                    if decoder_args.graph_type == "directed":
+                    if args.graph_type == "directed":
                         frontier += list(graph.successors(new_node))
                     else:
                         frontier += list(graph.neighbors(new_node))
