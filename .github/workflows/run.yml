@@ -92,6 +92,7 @@ jobs:
                 --dataset=undirected.pkl \
                 --queries_path=results/patterns.pkl \
                 --out_path=results/counts.json \
+                --preserve_labels \
                 --node_anchored
               echo 'Counting completed.'
               ls -la /app/results
