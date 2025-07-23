@@ -89,7 +89,7 @@ jobs:
               export PYTHONPATH=/app
               echo 'Running pattern counter...'
               python -m analyze.count_patterns \
-                --dataset=undirected.pkl \
+                --dataset=graph.pkl \
                 --out_path=results/counts.json \
                 --node_anchored
               echo 'Counting completed.'
