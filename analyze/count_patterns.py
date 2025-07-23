@@ -69,7 +69,10 @@ def compute_graph_stats(G):
     
     # Add connected components info
     try:
-        stats['n_components'] = nx.number_connected_components(G)
+        if args.graph_type == "directed":
+            stats['n_components'] = nx.number_strongly_connected_components(G)
+        else:
+            stats['n_components'] = nx.number_connected_components(G)
     except:
         stats['n_components'] = 1  # Assume connected if there's an error
         
@@ -468,7 +471,10 @@ def generate_one_baseline(args):
                 subgraph = graph.subgraph(neigh)
                 if subgraph.number_of_nodes() == 0:
                     continue
-                largest_cc = max(nx.connected_components(subgraph), key=len)
+                if args.graph_type == "directed":
+                    largest_cc = max(nx.strongly_connected_components(subgraph), key=len)
+                else:
+                    largest_cc = max(nx.connected_components(subgraph), key=len)
                 neigh = subgraph.subgraph(largest_cc)
                 neigh = nx.convert_node_labels_to_integers(neigh)
                 if len(neigh) == len(query):
