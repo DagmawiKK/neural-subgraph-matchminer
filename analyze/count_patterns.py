@@ -198,13 +198,23 @@ def count_graphlets_helper(inp):
                 
                 if preserve_labels:
                     # Use lambda functions to properly match node and edge attributes
-                    matcher = iso.GraphMatcher(target, query,
-                        node_match=lambda n1, n2: (n1.get("anchor") == n2.get("anchor") and
-                                                  n1.get("label") == n2.get("label")),
-                        edge_match=lambda e1, e2: e1.get("type") == e2.get("type"))
+                    if args.graph_type == "directed":
+                        matcher = iso.DiGraphMatcher(target, query,
+                            node_match=lambda n1, n2: (n1.get("anchor") == n2.get("anchor") and
+                                                    n1.get("label") == n2.get("label")),
+                            edge_match=lambda e1, e2: e1.get("type") == e2.get("type"))
+                    else:
+                        matcher = iso.GraphMatcher(target, query,
+                            node_match=lambda n1, n2: (n1.get("anchor") == n2.get("anchor") and
+                                                    n1.get("label") == n2.get("label")),
+                            edge_match=lambda e1, e2: e1.get("type") == e2.get("type"))
                 else:
-                    matcher = iso.GraphMatcher(target, query,
-                        node_match=iso.categorical_node_match(["anchor"], [0]))
+                    if args.graph_type == "directed":
+                        matcher = iso.GraphMatcher(target, query,
+                            node_match=iso.categorical_node_match(["anchor"], [0]))
+                    else:
+                        matcher = iso.GraphMatcher(target, query,
+                            node_match=iso.categorical_node_match(["anchor"], [0]))
                 
                 if time.time() - start_time > timeout:
                     print(f"Timeout on query {i} before isomorphism check")
