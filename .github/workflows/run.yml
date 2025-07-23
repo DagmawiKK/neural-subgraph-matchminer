@@ -78,25 +78,25 @@ jobs:
               ls -la /app/plots/cluster
               ls -la /app/results
               "
-      # - name: Run pattern counter in Docker container
-      #   run: |
-      #     docker run --rm \
-      #       -v ${{ github.workspace }}:/app \
-      #       -e PYTHONUNBUFFERED=1 \
-      #       decoder-image:latest \
-      #       bash -c "
-      #         set -e
-      #         export PYTHONPATH=/app
-      #         echo 'Running pattern counter...'
-      #         python -m analyze.count_patterns \
-      #           --dataset=graph.pkl \
-      #           --queries_path=results/patterns.pkl \
-      #           --out_path=results/ \
-      #           --node_anchored \
-      #           --preserve_labels
-      #         echo 'Counting completed.'
-      #         ls -la /app/results
-      #       "
+      - name: Run pattern counter in Docker container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/app \
+            -e PYTHONUNBUFFERED=1 \
+            decoder-image:latest \
+            bash -c "
+              set -e
+              export PYTHONPATH=/app
+              echo 'Running pattern counter...'
+              python -m analyze.count_patterns \
+                --dataset=graph.pkl \
+                --queries_path=results/patterns.pkl \
+                --out_path=results/ \
+                --node_anchored \
+                --preserve_labels
+              echo 'Counting completed.'
+              ls -la /app/results
+            "
 
       - name: Check for generated files
         run: |
