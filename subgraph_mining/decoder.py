@@ -233,7 +233,7 @@ def pattern_growth(dataset, task, args):
             for j in tqdm(range(args.n_neighborhoods)):
                 graph, neigh = utils.sample_neigh(graphs,
                     random.randint(args.min_neighborhood_size,
-                        args.max_neighborhood_size))
+                        args.max_neighborhood_size), args.graph_type)
                 neigh = graph.subgraph(neigh)
                 neigh = nx.convert_node_labels_to_integers(neigh)
                 neigh.add_edge(0, 0)
