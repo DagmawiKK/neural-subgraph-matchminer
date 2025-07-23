@@ -124,7 +124,10 @@ def load_networkx_graph(filepath):
     """Load a Networkx graph from pickle format with proper attributes handling."""
     with open(filepath, 'rb') as f:
         data = pickle.load(f)
-        graph = nx.Graph()
+        if args.graph_type == "directed":
+            graph = nx.DiGraph()
+        else:
+            graph = nx.Graph()
         
         # Add nodes with their attributes
         for node in data['nodes']:
