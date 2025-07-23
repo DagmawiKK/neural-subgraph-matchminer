@@ -297,15 +297,22 @@ def sample_subgraphs(target, n_samples=10, max_size=1000):
         # Start with a random node
         start_node = random.choice(nodes)
         subgraph_nodes = {start_node}
-        frontier = list(target.neighbors(start_node))
+        if args.graph_type == "directed":
+            frontier = list(target.successors(start_node))
+        else:
+            frontier = list(target.neighbors(start_node))
         
         # Grow the subgraph by BFS
         while len(subgraph_nodes) < max_size and frontier:
             next_node = frontier.pop(0)
             if next_node not in subgraph_nodes:
                 subgraph_nodes.add(next_node)
-                frontier.extend([n for n in target.neighbors(next_node) 
-                              if n not in subgraph_nodes and n not in frontier])
+                if args.graph_type == "directed":
+                    frontier.extend([n for n in target.successors(next_node) 
+                                    if n not in subgraph_nodes and n not in frontier])
+                else:
+                    frontier.extend([n for n in target.neighbors(next_node) 
+                                    if n not in subgraph_nodes and n not in frontier])
         
         sg = target.subgraph(subgraph_nodes)
         subgraphs.append(sg)
@@ -470,11 +477,17 @@ def generate_one_baseline(args):
             elif method == "tree":
                 start_node = random.choice(list(graph.nodes))
                 neigh = [start_node]
-                frontier = list(set(graph.neighbors(start_node)) - set(neigh))
+                if args.graph_type == "directed":
+                    frontier = list(set(graph.successors(start_node)) - set(neigh))
+                else:
+                    frontier = list(set(graph.neighbors(start_node)) - set(neigh))
                 while len(neigh) < len(query) and frontier:
                     new_node = random.choice(frontier)
                     neigh.append(new_node)
-                    frontier += list(graph.neighbors(new_node))
+                    if args.graph_type == "directed":
+                        frontier += list(graph.successors(new_node))
+                    else:
+                        frontier += list(graph.neighbors(new_node))
                     frontier = [x for x in frontier if x not in neigh]
                 if len(neigh) == len(query):
                     sub = graph.subgraph(neigh)
