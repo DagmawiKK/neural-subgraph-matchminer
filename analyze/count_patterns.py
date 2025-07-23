@@ -1,3 +1,4 @@
+print("Running count_patterns.py...")
 import argparse
 import csv
 import time
