@@ -101,7 +101,7 @@ def arg_parse():
     parser = argparse.ArgumentParser(description='count graphlets in a graph')
     parser.add_argument('--dataset', type=str)
     parser.add_argument('--queries_path', type=str)
-    parser.add_argument('--graph_type', type=str, default="undirected")
+    parser.add_argument('--graph_type', type=str)
     parser.add_argument('--out_path', type=str)
     parser.add_argument('--n_workers', type=int)
     parser.add_argument('--count_method', type=str)
@@ -118,6 +118,7 @@ def arg_parse():
                        queries_path="results/out-patterns.p",
                        out_path="results/counts.json",
                        n_workers=4,
+                       graph_type = "undirected",
                        count_method="bin",
                        baseline="none",
                        preserve_labels=False)
