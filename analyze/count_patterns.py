@@ -44,7 +44,6 @@ import torch.multiprocessing as mp
 from sklearn.decomposition import PCA
 from itertools import combinations
 
-args = None
 
 # Increase timeout for large graphs
 MAX_SEARCH_TIME = 1800  # 30 minutes for large graph processing
@@ -52,7 +51,7 @@ MAX_MATCHES_PER_QUERY = 10000
 DEFAULT_SAMPLE_ANCHORS = 1000
 CHECKPOINT_INTERVAL = 100  # Save progress every 100 tasks
 
-def compute_graph_stats(G):
+def compute_graph_stats(G, args):
     """Compute graph statistics for filtering."""
     stats = {
         'n_nodes': G.number_of_nodes(),
@@ -172,8 +171,8 @@ def count_graphlets_helper(inp):
     effective_timeout = min(timeout, 600)  # Max 10 minutes per task
     
     # Quick stats check before proceeding
-    query_stats = compute_graph_stats(query)
-    target_stats = compute_graph_stats(target)
+    query_stats = compute_graph_stats(query, args)
+    target_stats = compute_graph_stats(target, args)
     if not can_be_isomorphic(query_stats, target_stats):
         return i, 0
     
@@ -455,11 +454,11 @@ def count_graphlets(queries, targets, args):
 
 
 #multiprocessing gen_baseline_queries ----------------
-def generate_one_baseline(args):
+def generate_one_baseline(args_tuple):
     import networkx as nx
     import random
 
-    i, query, targets, method = args
+    i, query, targets, method, args = args_tuple
 
     if len(query) == 0:
         return query
@@ -517,13 +516,11 @@ def convert_to_networkx(graph):
         return graph
     return pyg_utils.to_networkx(graph).to_undirected()
     
-def gen_baseline_queries(queries, targets, method="radial", node_anchored=False):
+def gen_baseline_queries(queries, targets, method="radial", node_anchored=False, args=None):
     print(f"Generating {len(queries)} baseline queries in parallel using method: {method}")
-    
-    args_list = [(i, query, targets, method) for i, query in enumerate(queries)]
+    args_list = [(i, query, targets, method, args) for i, query in enumerate(queries)]
     with Pool(processes=os.cpu_count()) as pool:
         results = pool.map(generate_one_baseline, args_list)
-    
     return results
 
 
@@ -604,8 +601,9 @@ def main():
     else:
         # Generate baseline queries for comparison
         print(f"Generating baseline queries using {args.baseline}")
-        baseline_queries = gen_baseline_queries(queries, targets,
-            node_anchored=args.node_anchored, method=args.baseline)
+        baseline_queries = gen_baseline_queries(
+    queries, targets, node_anchored=args.node_anchored, method=args.baseline, args=args
+)
         query_lens = [len(q) for q in baseline_queries]
         n_matches = count_graphlets(baseline_queries, targets, args)
             
